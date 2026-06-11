@@ -37,7 +37,7 @@ async def on_message(message):
     memory = search_memory(message.content[:20])
     prompt = f"相关记忆: {memory}\n\n用户说: {message.content}" if memory else message.content
     response = client_ai.models.generate_content(
-        model="gemini-1.5-flash",
+        model="gemini-2.0-flash-lite"
         contents=prompt
     )
     await message.channel.send(response.text[:2000])
