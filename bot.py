@@ -1,5 +1,5 @@
 import discord
-import google.generativeai as genai
+from google import genai
 import os
 import requests
 
@@ -8,8 +8,7 @@ GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
 DIFY_SEARCH_URL = os.environ["DIFY_SEARCH_URL"]
 DIFY_API_KEY = os.environ["DIFY_API_KEY"]
 
-genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel("gemini-2.0-flash")
+client_ai = genai.Client(api_key=GEMINI_API_KEY)
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -29,15 +28,18 @@ def search_memory(keyword):
 
 @client.event
 async def on_ready():
-    print(f"Bot已上线：{client.user}")
+    print(f"Bot已上线: {client.user}")
 
 @client.event
 async def on_message(message):
     if message.author == client.user:
         return
     memory = search_memory(message.content[:20])
-    prompt = f"相关记忆：{memory}\n\n用户说：{message.content}" if memory else message.content
-    response = model.generate_content(prompt)
+    prompt = f"相关记忆: {memory}\n\n用户说: {message.content}" if memory else message.content
+    response = client_ai.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=prompt
+    )
     await message.channel.send(response.text[:2000])
 
 client.run(DISCORD_TOKEN)
